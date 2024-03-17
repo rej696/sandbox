@@ -4,6 +4,7 @@
 *.bin
 **/build/*
 git/*
+tmp/*
 **/__pycache__/*
 **/.clj-kondo/*
 **/.lsp/*
