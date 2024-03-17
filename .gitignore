@@ -1,0 +1,9 @@
+*.o
+*.elf
+*.exe
+*.bin
+**/build/*
+git/*
+**/__pycache__/*
+**/.clj-kondo/*
+**/.lsp/*
