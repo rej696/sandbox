@@ -38,6 +38,11 @@ def format_time(instant, _):
 
 
 def plot(filename, metadata, channels):
+    try:
+        plt.style.use("dark_background")
+    except OSError:
+        pass
+
     fig, ax = plt.subplots(
         nrows=metadata.num_channels,
         ncols=1,
