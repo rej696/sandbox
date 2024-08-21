@@ -1,3 +1,4 @@
+import inspect
 import wave
 from functools import cached_property, wraps
 
@@ -32,11 +33,18 @@ def reshape(shape):
         raise ValueError("shape must be either 'rows' or 'columns'")
 
     def decorator(method):
-        @wraps(method)
-        def wrapper(self, *args, **kwargs):
-            values = method(self, *args, **kwargs)
-            reshaped = values.reshape(-1, self.metadata.num_channels)
-            return reshaped if shape == "rows" else reshaped.T
+        if inspect.isgeneratorfunction(method):
+            @wraps(method)
+            def wrapper(self, *args, **kwargs):
+                for values in method(self, *args, **kwargs):
+                    reshaped = values.reshape(-1, self.metadata.num_channels)
+                    yield reshaped if shape == "rows" else reshaped.T
+        else:
+            @wraps(method)
+            def wrapper(self, *args, **kwargs):
+                values = method(self, *args, **kwargs)
+                reshaped = values.reshape(-1, self.metadata.num_channels)
+                return reshaped if shape == "rows" else reshaped.T
 
         return wrapper
 
@@ -45,6 +53,7 @@ def reshape(shape):
 
 class WAVReader:
     """wav file reader wrapping python stdlib wave module"""
+    DEFAULT_MAX_FRAMES = 1024
 
     def __init__(self, path):
         self._wav_file = wave.open(str(path))
@@ -68,6 +77,10 @@ class WAVReader:
         return self.metadata.encoding.decode(frames)
 
     @cached_property
+    def stereo(self):
+        return 2 == self.metadata.num_channels
+
+    @cached_property
     @reshape("rows")
     def frames(self):
         return self._read(self.metadata.num_frames, start_frame=0)
@@ -88,3 +101,12 @@ class WAVReader:
         frames_range = range(*frames_slice.indices(self.metadata.num_frames))
         values = self._read(len(frames_range), frames_range.start)
         return ArraySlice(values, frames_range)
+
+    @reshape("columns")
+    def channels_lazy(self, max_frames=DEFAULT_MAX_FRAMES):
+        self._wav_file.rewind()
+        while True:
+            chunk = self._read(max_frames)
+            if chunk.size == 0:
+                break
+            yield chunk
