@@ -1,0 +1,14 @@
+
+{:paths ["./"]
+ :tasks {:requires ([babashka.fs :as fs]
+                    [journal :as jnl])
+         clean     (fs/delete-if-exists "entries.edn")
+         list      (jnl/list-entries nil)
+         add       (exec 'jnl/add-entry)
+         help      {:override-builtin true
+                    :task (jnl/help nil)}
+
+         list-containers {:doc "list docker containers"
+                          :task
+                          (apply shell "docker container ls" *command-line-args*)}}}
+
