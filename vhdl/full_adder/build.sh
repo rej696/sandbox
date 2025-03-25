@@ -1,0 +1,6 @@
+#!/bin/bash
+# https://ghdl.github.io/ghdl/quick_start/simulation/adder/index.html
+../ghdl -a adder.vhdl
+../ghdl -a adder_tb.vhdl
+../ghdl -e adder_tb
+../ghdl -r adder_tb

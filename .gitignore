@@ -1,6 +1,8 @@
 *.o
 *.elf
 *.exe
+*.cf
+*.ghw
 *.bin
 **/build/*
 git/*
