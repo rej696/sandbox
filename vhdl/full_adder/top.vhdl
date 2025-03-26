@@ -28,23 +28,23 @@ architecture rtl of top is
     signal sum1, sum2: std_logic;
 begin
     adder_0: adder port map (
-        i0 => i_Switch_1,
-        i1 => i_Switch_2,
+        i0 => i_Switch_2,
+        i1 => i_Switch_4,
         ci => '0',
         s => sum1,
         co => carry1
     );
 
     adder_1: adder port map (
-        i0 => i_Switch_3,
-        i1 => i_Switch_4,
+        i0 => i_Switch_1,
+        i1 => i_Switch_3,
         ci => carry1,
         s => sum2,
         co => carry2
     );
 
-    o_LED_1 <= sum1;
+    o_LED_1 <= carry2;
     o_LED_2 <= sum2;
-    o_LED_3 <= carry2;
+    o_LED_3 <= sum1;
 
 end architecture rtl;

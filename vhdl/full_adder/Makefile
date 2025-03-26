@@ -30,7 +30,7 @@ all: $(WORKDIR)/$(TOP).bin
 
 build: $(WORKDIR)/$(TOP).bin
 
-sim: $(VHDL_SOURCES) $(WORKDIR)
+sim: $(VHDL_SOURCES)
 	mkdir -p $(WORKDIR)
 	$(GHDL) -i -v --workdir=$(WORKDIR) $(VHDL_SOURCES)
 	$(GHDL) -m -v --workdir=$(WORKDIR) $(TOP)
