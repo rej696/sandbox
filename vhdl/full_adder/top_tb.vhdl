@@ -66,15 +66,15 @@ begin
 
             ('0', '1', '1', '0', '0', '1', '1'),
             ('1', '0', '1', '0', '1', '0', '0'),
-            ('1', '1', '1', '0', '1', '1', '0'),
+            ('1', '1', '1', '0', '1', '0', '1'),
             ('1', '0', '0', '1', '0', '1', '1'),
             ('1', '0', '1', '0', '1', '0', '0'),
-            ('1', '0', '1', '1', '1', '1', '0'),
+            ('1', '0', '1', '1', '1', '0', '1'),
 
-            ('0', '1', '1', '1', '1', '1', '0'),
+            ('0', '1', '1', '1', '1', '0', '0'),
             ('1', '0', '1', '1', '1', '0', '1'),
             ('1', '1', '1', '1', '1', '1', '0'),
-            ('1', '1', '0', '1', '1', '1', '0'),
+            ('1', '1', '0', '1', '1', '0', '0'),
             ('1', '1', '1', '0', '1', '0', '1'),
             ('1', '1', '1', '1', '1', '1', '0')
         );
@@ -89,13 +89,28 @@ begin
             -- wait for the results
             wait for 1 ns;
 
+
             -- check the outputs
             assert o_LED_1 = patterns(i).l1
-                report "led1 invalid value" severity error;
+                report "led1 invalid value. Expected: " & std_logic'image(o_LED_1) & ", Got: " & std_logic'image(o_LED_1) severity error;
             assert o_LED_2 = patterns(i).l2
-                report "led2 invalid value" severity error;
+                report "led2 invalid value. Expected: " & std_logic'image(o_LED_2) & ", Got: " & std_logic'image(o_LED_2) severity error;
             assert o_LED_3 = patterns(i).l3
-                report "led3 invalid value" severity error;
+                report "led3 invalid value. Expected: " & std_logic'image(o_LED_3) & ", Got: " & std_logic'image(o_LED_3) severity error;
+            if (o_LED_1 /= patterns(i).l1) or (o_LED_2 /= patterns(i).l2) or (o_LED_3 /= patterns(i).l3) then
+                report "    Input: (" & std_logic'image(i_Switch_1) & ", "
+                    & std_logic'image(i_Switch_2) & ", "
+                    & std_logic'image(i_Switch_3) & ", "
+                    & std_logic'image(i_Switch_4) & ")" severity note;
+
+                report "    Expected: (" & std_logic'image(patterns(i).l1) & ", "
+                    & std_logic'image(patterns(i).l2) & ", "
+                    & std_logic'image(patterns(i).l3) & ")" severity note;
+
+                report "    Got: (" & std_logic'image(o_LED_1) & ", "
+                    & std_logic'image(o_LED_2) & ", "
+                    & std_logic'image(o_LED_3) & ")" severity note;
+            end if;
         end loop;
         assert false report "end of test" severity note;
 
