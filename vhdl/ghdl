@@ -1,3 +1,4 @@
 #!/bin/bash
 
-docker run --rm -v $PWD:/src -w /src ghdl/synth:beta ghdl $*
+# docker run --rm -u $(id -u):$(id -g) -v $PWD:/src -w /src ghdl/synth:beta ghdl $*
+docker run -it --rm -u $(id -u):$(id -g) -v $PWD:/src -w /src hdlc/impl:icestorm ghdl $*
