@@ -24,11 +24,15 @@ PACKAGE = vq100
 DEVICE = -hx1k
 FREQ = --freq 25
 
-.PHONY: all build sim prog clean
+.PHONY: all build synth pnr sim prog clean
 
 all: $(WORKDIR)/$(TOP).bin
 
 build: $(WORKDIR)/$(TOP).bin
+
+synth: $(WORKDIR)/$(TOP).json
+
+pnr: $(WORKDIR)/$(TOP).asc
 
 sim: $(VHDL_SOURCES)
 	mkdir -p $(WORKDIR)
