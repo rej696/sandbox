@@ -23,7 +23,7 @@ VHDL_SOURCES = $(shell find . -name "*.vhdl")
 
 ifeq ($(BOARD),goboard)
 # Nandland Go Board Settings
-PCF ?= ../goboard.pcf
+PCF ?= ../constraints/goboard.pcf
 GHDL_GENERICS = #-gCLK_FREQUENCY=25000000
 PACKAGE = vq100
 DEVICE = hx1k
@@ -33,7 +33,7 @@ PROG = $(ICEPROG)
 else ifeq ($(BOARD),tinyfpga)
 # Nandland Go Board Settings
 #
-PCF ?= ../tinyfpga.pcf
+PCF ?= ../constraints/tinyfpga.pcf
 GHDL_GENERICS = #-gCLK_FREQUENCY=16000000
 PACKAGE = cm81
 DEVICE = lp8k
