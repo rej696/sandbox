@@ -1,6 +1,5 @@
 TOP ?= top
-WORKDIR ?= build
-PCF ?= goboard.pcf
+BOARD ?= goboard
 
 UID = $(shell id -u)
 GID = $(shell id -g)
@@ -15,14 +14,46 @@ NEXTPNR = $(DOCKER-BUILD) nextpnr-ice40
 ICEPACK = $(DOCKER-BUILD) icepack
 # Don't use docker for programming, device pass through doesn't work
 ICEPROG = iceprog
+TINYPROG = tinyprog
 
 VHDL_SOURCES = $(shell find . -name "*.vhdl")
 
+ifeq ($(BOARD),goboard)
 # Nandland Go Board Settings
+PCF ?= goboard.pcf
 GHDL_GENERICS = #-gCLK_FREQUENCY=25000000
 PACKAGE = vq100
-DEVICE = -hx1k
+DEVICE = hx1k
 FREQ = --freq 25
+PROG = $(ICEPROG)
+
+else ifeq ($(BOARD),tinyfpga)
+# Nandland Go Board Settings
+PCF ?= tinyfpga.pcf
+GHDL_GENERICS = #-gCLK_FREQUENCY=25000000
+PACKAGE = cm81
+DEVICE = lp8k
+FREQ =
+PROG = $(TINYPROG) -p
+
+endif
+
+VERBOSE ?= 0
+
+ifeq ($(VERBOSE),1)
+Q=
+VERBOSE_GHDL = -v
+VERBOSE_PNR =
+VERBOSE_YOSYS =
+else
+Q=@
+VERBOSE_GHDL =
+VERBOSE_PNR = --quiet
+VERBOSE_YOSYS = -q
+endif
+
+WORKDIR = build/$(BOARD)
+
 
 .PHONY: all build synth pnr sim prog clean
 
@@ -35,25 +66,30 @@ synth: $(WORKDIR)/$(TOP).json
 pnr: $(WORKDIR)/$(TOP).asc
 
 sim: $(VHDL_SOURCES)
-	mkdir -p $(WORKDIR)
-	$(GHDL) -i -v --workdir=$(WORKDIR) $(VHDL_SOURCES)
-	$(GHDL) -m -v --workdir=$(WORKDIR) $(TOP)_tb
-	$(GHDL) -r -v --workdir=$(WORKDIR) $(TOP)_tb
+	$(Q) echo "Simulating"
+	$(Q) mkdir -p $(WORKDIR)
+	$(Q) $(GHDL) -i $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(VHDL_SOURCES)
+	$(Q) $(GHDL) -m $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TOP)_tb
+	$(Q) $(GHDL) -r $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TOP)_tb
 
 prog: $(WORKDIR)/$(TOP).bin
-	$(ICEPROG) $<
+	$(Q) echo "Programming $(BOARD)"
+	$(Q) $(PROG) $<
 
 clean:
-	rm -rf $(WORKDIR)
+	$(Q) rm -rf build
 
 $(WORKDIR)/$(TOP).bin: $(WORKDIR)/$(TOP).asc
-	$(ICEPACK) $< $@
+	$(Q) echo "Generating Bitstream"
+	$(Q) $(ICEPACK) $< $@
 
 $(WORKDIR)/$(TOP).asc: $(WORKDIR)/$(TOP).json
-	$(NEXTPNR) --hx1k --json $< $(FREQ) --pcf $(PCF) --pcf-allow-unconstrained --package $(PACKAGE) --asc $@
+	$(Q) echo "Place'n'Route"
+	$(Q) $(NEXTPNR) $(VERBOSE_PNR) --$(DEVICE) --json $< $(FREQ) --pcf $(PCF) --pcf-allow-unconstrained --package $(PACKAGE) --asc $@
 
 $(WORKDIR)/$(TOP).json: $(VHDL_SOURCES)
-	mkdir -p $(WORKDIR)
-	$(GHDL) -i -v --workdir=$(WORKDIR) $(VHDL_SOURCES)
-	$(GHDL) -m -v --workdir=$(WORKDIR) $(TOP)
-	$(YOSYS) -m ghdl -p "ghdl --workdir=$(WORKDIR) $(TOP); synth_ice40 -json $@"
+	$(Q) echo "Synthesizing"
+	$(Q) mkdir -p $(WORKDIR)
+	$(Q) $(GHDL) -i $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(VHDL_SOURCES)
+	$(Q) $(GHDL) -m $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TOP)
+	$(Q) $(YOSYS) $(VERBOSE_YOSYS) -m ghdl -p "ghdl --workdir=$(WORKDIR) $(TOP); synth_ice40 -json $@"
