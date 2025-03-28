@@ -5,6 +5,7 @@ PYTHON ?= python3
 
 UID = $(shell id -u)
 GID = $(shell id -g)
+PWD = $(shell pwd)
 
 DOCKER = docker run -it --rm -u $(UID):$(GID) -v $(PWD):/src -w /src
 DOCKER-BUILD = $(DOCKER) hdlc/impl:icestorm
@@ -22,20 +23,21 @@ VHDL_SOURCES = $(shell find . -name "*.vhdl")
 
 ifeq ($(BOARD),goboard)
 # Nandland Go Board Settings
-PCF ?= goboard.pcf
+PCF ?= ../goboard.pcf
 GHDL_GENERICS = #-gCLK_FREQUENCY=25000000
 PACKAGE = vq100
 DEVICE = hx1k
-FREQ = --freq 25
+FREQ = 25
 PROG = $(ICEPROG)
 
 else ifeq ($(BOARD),tinyfpga)
 # Nandland Go Board Settings
-PCF ?= tinyfpga.pcf
-GHDL_GENERICS = #-gCLK_FREQUENCY=25000000
+#
+PCF ?= ../tinyfpga.pcf
+GHDL_GENERICS = #-gCLK_FREQUENCY=16000000
 PACKAGE = cm81
 DEVICE = lp8k
-FREQ =
+FREQ = 16
 PROG = $(TINYPROG) -p
 
 endif
@@ -90,7 +92,7 @@ $(WORKDIR)/$(TOP).bin: $(WORKDIR)/$(TOP).asc
 
 $(WORKDIR)/$(TOP).asc: $(WORKDIR)/$(TOP).json
 	$(Q) echo "Place'n'Route"
-	$(Q) $(NEXTPNR) $(VERBOSE_PNR) --$(DEVICE) --json $< $(FREQ) --pcf $(PCF) --pcf-allow-unconstrained --package $(PACKAGE) --report $(PNR_REPORT) --asc $@
+	$(Q) $(NEXTPNR) $(VERBOSE_PNR) --$(DEVICE) --json $< --freq $(FREQ) --pcf $(PCF) --pcf-allow-unconstrained --package $(PACKAGE) --report $(PNR_REPORT) --asc $@
 
 $(WORKDIR)/$(TOP).json: $(VHDL_SOURCES)
 	$(Q) echo "Synthesizing"
