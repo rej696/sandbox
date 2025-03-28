@@ -37,8 +37,8 @@ pnr: $(WORKDIR)/$(TOP).asc
 sim: $(VHDL_SOURCES)
 	mkdir -p $(WORKDIR)
 	$(GHDL) -i -v --workdir=$(WORKDIR) $(VHDL_SOURCES)
-	$(GHDL) -m -v --workdir=$(WORKDIR) $(TOP)
-	$(GHDL) -r -v --workdir=$(WORKDIR) $(TOP)
+	$(GHDL) -m -v --workdir=$(WORKDIR) $(TOP)_tb
+	$(GHDL) -r -v --workdir=$(WORKDIR) $(TOP)_tb
 
 prog: $(WORKDIR)/$(TOP).bin
 	$(ICEPROG) $<

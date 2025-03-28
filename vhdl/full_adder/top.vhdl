@@ -11,7 +11,8 @@ entity top is
     i_Switch_4 : in std_logic;
     o_LED_1 : out std_logic;
     o_LED_2 : out std_logic;
-    o_LED_3 : out std_logic
+    o_LED_3 : out std_logic;
+    o_LED_4 : out std_logic
   );
 end entity top;
 
@@ -43,8 +44,9 @@ begin
         co => carry2
     );
 
-    o_LED_1 <= carry2;
-    o_LED_2 <= sum2;
-    o_LED_3 <= sum1;
+    o_LED_1 <= '0';
+    o_LED_2 <= carry2;
+    o_LED_3 <= sum2;
+    o_LED_4 <= sum1;
 
 end architecture rtl;
