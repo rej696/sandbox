@@ -7,7 +7,7 @@ UID = $(shell id -u)
 GID = $(shell id -g)
 PWD = $(shell pwd)
 
-DOCKER = docker run -it --rm -u $(UID):$(GID) -v $(PWD):/src -w /src
+DOCKER = docker run --rm -u $(UID):$(GID) -v $(PWD):/src -w /src
 DOCKER-BUILD = $(DOCKER) hdlc/impl:icestorm
 DOCKER-PROG = $(DOCKER) hdlc/prog
 
