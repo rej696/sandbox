@@ -10,7 +10,7 @@ SRC ?= .
 BUILD ?= build
 TARGET ?= $(BUILD)/firmware
 FIFO ?= $(BUILD)/cmdfifo
-PROG ?= $(SRC)/examples/add
+PROG ?= examples/add
 
 AFLAGS ?= -c -mcpu=arm926ej-s -g
 LDFLAGS ?= -T$(LDSCRIPT)
@@ -22,7 +22,7 @@ QEMUFLAGS_TCP ?= -serial tcp:localhost:$(QEMUPORT),server
 QEMUFLAGS_DBG ?= -s -S
 
 # SOURCES := $(shell find $(SRC) -name '*.S')
-SOURCES := $(SRC)/forth.S $(PROG).S
+SOURCES := $(SRC)/forth.S $(SRC)/$(PROG).S
 OBJECTS := $(SOURCES:$(SRC)/%.S=$(BUILD)/%.o)
 
 .PHONY: all run dbg tcp tcpdbg dump dumpprog printprog send
@@ -87,4 +87,4 @@ send: $(TARGET).bin printprog
 	TO="$$(echo $$(echo $$FROM | sed 's/../& /g' | sed -e 's/\(..\) /01\1/g') | sed 's/ //g')"; \
 	echo "Sending: $$TO"; \
 	echo "Receiving:"; \
-	echo $$TO | xxd -r -p | nc -N localhost $(QEMUPORT) | xxd -p -c 1
+	echo $$TO | xxd -r -p | nc -N localhost $(QEMUPORT) | xxd -p
