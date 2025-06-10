@@ -4,7 +4,9 @@
 .section .text
 .global execute
 execute:
-    mov r1, #0xA5
+    mov r1, #0xBA
+    bl putchar
+    mov r1, #0xBE
     bl putchar
     ldr r1, =0xDEAD0000
     ldr r2, =0x0000BEEF
@@ -12,4 +14,5 @@ execute:
     push {r1}
     bl putchar
     str r1, [r3]
-    bx lr
+    ldr r3, =_start
+    bx r3

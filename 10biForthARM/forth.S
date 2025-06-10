@@ -18,6 +18,7 @@ loop:
 
     cmp r0, #0
     bne skip
+    mov r0, #1
     bl execute
 
 skip:

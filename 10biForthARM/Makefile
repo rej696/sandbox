@@ -74,10 +74,17 @@ printprog: $(TARGET).elf
 	echo "... ..."; \
 	echo "$$CODE" | tail -n 3;
 
+trigger:
+	echo "00" | xxd -r -p | nc -q 3 -N localhost $(QEMUPORT) | xxd -p -c 1
+
+recv:
+	nc -q 3 -N localhost $(QEMUPORT) | xxd -p -c 1
+
 send: $(TARGET).bin printprog
-	@FROM=$$(echo $$(xxd -e $< | sed -E 's/^.*: (.{8}) (.{8}) (.{8}) (.{8}).*$$/\1\2\3\4/') | sed 's/ //g'); \
+	# @FROM=$$(echo $$(xxd -e $< | sed -E 's/^.*: (.{8}) (.{8}) (.{8}) (.{8}).*$$/\1\2\3\4/') | sed 's/ //g');
+	@FROM=$$(echo $$(xxd -p $< ) | sed 's/ //g'); \
 	echo "Original: $$FROM"; \
-	TO="$$(echo $$(echo $$FROM | sed 's/../& /g' | sed -e 's/\(..\) /01\1/g') | sed 's/ //g')00"; \
+	TO="$$(echo $$(echo $$FROM | sed 's/../& /g' | sed -e 's/\(..\) /01\1/g') | sed 's/ //g')"; \
 	echo "Sending: $$TO"; \
 	echo "Receiving:"; \
-	echo $$TO | xxd -r -p | nc -q 3 -N localhost $(QEMUPORT) | xxd -p
+	echo $$TO | xxd -r -p | nc -N localhost $(QEMUPORT) | xxd -p -c 1
