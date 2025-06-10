@@ -59,6 +59,9 @@ tcp: $(BUILD)/forth.bin
 tcpdbg: $(BUILD)/forth.bin
 	$(QEMU) $(QEMUFLAGS) $(QEMUFLAGS_TCP) $(QEMUFLAGS_DBG) -kernel $<
 
+qemutest: $(TARGET).bin
+	$(QEMU) $(QEMUFLAGS) -kernel $<
+
 dump: $(BUILD)/forth.elf
 	$(OBJDUMP) -dh $<
 

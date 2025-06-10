@@ -18,9 +18,7 @@ loop:
 
     cmp r0, #0
     bne skip
-    ldr r3, =execute
-    bx r3
-    /* bl execute */
+    bl execute
 
 skip:
     cmp r0, #1
