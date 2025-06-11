@@ -8,9 +8,9 @@ OBJDUMP := $(CROSS_COMPILE)objdump
 LDSCRIPT ?= forth.ld
 SRC ?= .
 BUILD ?= build
-TARGET ?= $(BUILD)/firmware
 FIFO ?= $(BUILD)/cmdfifo
 PROG ?= examples/add
+TARGET ?= $(BUILD)/$(PROG)
 
 AFLAGS ?= -c -mcpu=arm926ej-s -g
 LDFLAGS ?= -T$(LDSCRIPT)
