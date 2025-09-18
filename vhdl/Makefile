@@ -1,4 +1,5 @@
 TOP ?= top
+TESTBENCH ?= $(TOP)_tb
 BOARD ?= goboard
 UVX ?= uvx
 PYTHON ?= python3
@@ -18,6 +19,7 @@ ICEPACK = $(DOCKER-BUILD) icepack
 # Don't use docker for programming, device pass through doesn't work
 ICEPROG = iceprog
 TINYPROG = $(UVX) tinyprog
+GTKWAVE = gtkwave
 
 VHDL_SOURCES = $(shell find . -name "*.vhdl")
 
@@ -59,7 +61,7 @@ endif
 WORKDIR = build/$(BOARD)
 PNR_REPORT = $(WORKDIR)/pnr-report.json
 
-.PHONY: all build synth pnr sim prog clean report
+.PHONY: all build synth pnr sim wave prog clean report
 
 all: $(WORKDIR)/$(TOP).bin
 
@@ -76,8 +78,12 @@ sim: $(VHDL_SOURCES)
 	$(Q) echo "Simulating"
 	$(Q) mkdir -p $(WORKDIR)
 	$(Q) $(GHDL) -i $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(VHDL_SOURCES)
-	$(Q) $(GHDL) -m $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TOP)_tb
-	$(Q) $(GHDL) -r $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TOP)_tb
+	$(Q) $(GHDL) -m $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TESTBENCH)
+	$(Q) $(GHDL) -r $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TESTBENCH) --vcd=$(WORKDIR)/$(TESTBENCH).vcd --wave=$(WORKDIR)/$(TESTBENCH).ghw
+
+wave: | sim
+	$(Q) $(GTKWAVE) $(WORKDIR)/$(TESTBENCH).vcd
+
 
 prog: $(WORKDIR)/$(TOP).bin
 	$(Q) echo "Programming $(BOARD)"
