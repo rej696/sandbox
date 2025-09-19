@@ -21,6 +21,8 @@ ICEPROG = iceprog
 TINYPROG = $(UVX) tinyprog
 GTKWAVE = gtkwave
 
+GHDL_FLAGS = --std=08 --workdir=$(WORKDIR)
+
 VHDL_SOURCES = $(shell find . -name "*.vhdl")
 
 ifeq ($(BOARD),goboard)
@@ -77,12 +79,12 @@ report: pnr
 sim: $(VHDL_SOURCES)
 	$(Q) echo "Simulating"
 	$(Q) mkdir -p $(WORKDIR)
-	$(Q) $(GHDL) -i $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(VHDL_SOURCES)
-	$(Q) $(GHDL) -m $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TESTBENCH)
-	$(Q) $(GHDL) -r $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TESTBENCH) --vcd=$(WORKDIR)/$(TESTBENCH).vcd --wave=$(WORKDIR)/$(TESTBENCH).ghw
+	$(Q) $(GHDL) -i $(VERBOSE_GHDL) $(GHDL_FLAGS) $(VHDL_SOURCES)
+	$(Q) $(GHDL) -m $(VERBOSE_GHDL) $(GHDL_FLAGS) $(TESTBENCH)
+	$(Q) $(GHDL) -r $(VERBOSE_GHDL) $(GHDL_FLAGS) $(TESTBENCH) --vcd=$(WORKDIR)/$(TESTBENCH).vcd --wave=$(WORKDIR)/$(TESTBENCH).ghw
 
 wave: | sim
-	$(Q) $(GTKWAVE) $(WORKDIR)/$(TESTBENCH).vcd
+	$(Q) $(GTKWAVE) $(WORKDIR)/$(TESTBENCH).ghw
 
 
 prog: $(WORKDIR)/$(TOP).bin
@@ -103,6 +105,6 @@ $(WORKDIR)/$(TOP).asc: $(WORKDIR)/$(TOP).json
 $(WORKDIR)/$(TOP).json: $(VHDL_SOURCES)
 	$(Q) echo "Synthesizing"
 	$(Q) mkdir -p $(WORKDIR)
-	$(Q) $(GHDL) -i $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(VHDL_SOURCES)
-	$(Q) $(GHDL) -m $(VERBOSE_GHDL) --workdir=$(WORKDIR) $(TOP)
-	$(Q) $(YOSYS) $(VERBOSE_YOSYS) -m ghdl -p "ghdl --workdir=$(WORKDIR) $(TOP); synth_ice40 -json $@"
+	$(Q) $(GHDL) -i $(VERBOSE_GHDL) $(GHDL_FLAGS) $(VHDL_SOURCES)
+	$(Q) $(GHDL) -m $(VERBOSE_GHDL) $(GHDL_FLAGS) $(TOP)
+	$(Q) $(YOSYS) $(VERBOSE_YOSYS) -m ghdl -p "ghdl $(GHDL_FLAGS) $(TOP); synth_ice40 -json $@"
