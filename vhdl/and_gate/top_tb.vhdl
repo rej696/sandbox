@@ -20,18 +20,22 @@ begin
         r_In1 <= '0';
         r_In2 <= '0';
         wait for 10 ns;
+        assert (w_Out = '0') severity failure;
 
         r_In1 <= '0';
         r_In2 <= '1';
         wait for 10 ns;
+        assert (w_Out = '0') severity failure;
 
         r_In1 <= '1';
         r_In2 <= '0';
         wait for 10 ns;
+        assert (w_Out = '0') severity failure;
 
         r_In1 <= '1';
         r_In2 <= '1';
         wait for 10 ns;
+        assert (w_Out = '1') severity failure;
 
         wait for 10 ns;
         finish;
