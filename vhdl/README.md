@@ -11,7 +11,7 @@ Adapted Makefile from https://github.com/rej696/nandland-goboard-vhdl-examples f
 Added featuers for multifile projects, simulators. check full_adder.
 
 ## iceprog
-iceprog is for programming, must be natively installed (not in a container). 
+iceprog is for programming, must be natively installed (not in a container).
 
 There are scripts located here to install https://github.com/ddm/icetools/tree/master
 
@@ -23,6 +23,10 @@ make
 sudo make install
 ```
 
+## Rust HDL
+language server: https://github.com/vhdl-ls/rust_hdl
+
+uses vhdl_ls.toml configuration file
 
 ## Links
 - Learn VHDL resources from GHDL: https://github.com/ghdl/ghdl/issues/1291

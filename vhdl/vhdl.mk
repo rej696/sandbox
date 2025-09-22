@@ -1,3 +1,8 @@
+ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+ROOT_REL_PATH := $(shell realpath -m --relative-to=$(PROJ_DIR) $(ROOT_DIR))/
+PROJ_REL_PATH := $(subst $(ROOT_DIR),,$(basename $(PROJ_DIR)))
+PROJ_PATH := $(ROOT_DIR)$(PROJ_REL_PATH)
+
 TOP ?= top
 TESTBENCH ?= $(TOP)_tb
 BOARD ?= goboard
@@ -8,7 +13,7 @@ UID = $(shell id -u)
 GID = $(shell id -g)
 PWD = $(shell pwd)
 
-DOCKER = docker run --rm -u $(UID):$(GID) -v $(PWD):/src -w /src
+DOCKER = docker run --rm -u $(UID):$(GID) -v $(ROOT_DIR):/src -w /src/$(PROJ_REL_PATH)
 DOCKER-BUILD = $(DOCKER) hdlc/impl:icestorm
 DOCKER-PROG = $(DOCKER) hdlc/prog
 
@@ -24,10 +29,11 @@ GTKWAVE = gtkwave
 GHDL_FLAGS = --std=08 --workdir=$(WORKDIR)
 
 VHDL_SOURCES = $(shell find . -name "*.vhdl")
+# VHDL_SOURCES_PATH = $(patsubst %,$(PROJ_REL_PATH)%,$(VHDL_SOURCES))
 
 ifeq ($(BOARD),goboard)
 # Nandland Go Board Settings
-PCF ?= constraints/goboard.pcf
+PCF ?= $(ROOT_REL_PATH)constraints/goboard.pcf
 GHDL_GENERICS = #-gCLK_FREQUENCY=25000000
 PACKAGE = vq100
 DEVICE = hx1k
@@ -37,7 +43,7 @@ PROG = $(ICEPROG)
 else ifeq ($(BOARD),tinyfpga)
 # Nandland Go Board Settings
 #
-PCF ?= constraints/tinyfpga.pcf
+PCF ?= $(ROOT_REL_PATH)constraints/tinyfpga.pcf
 GHDL_GENERICS = #-gCLK_FREQUENCY=16000000
 PACKAGE = cm81
 DEVICE = lp8k
@@ -63,11 +69,16 @@ endif
 WORKDIR = build/$(BOARD)
 PNR_REPORT = $(WORKDIR)/pnr-report.json
 
-.PHONY: all build synth pnr sim wave prog clean report
-
-all: $(WORKDIR)/$(TOP).bin
+.PHONY: all build synth pnr sim wave prog clean report root
 
 build: $(WORKDIR)/$(TOP).bin
+
+root:
+	@echo $(ROOT_DIR)
+	@echo $(ROOT_REL_PATH)
+	@echo $(PROJ_DIR)
+	@echo $(PROJ_PATH)
+	@echo $(PROJ_REL_PATH)
 
 synth: $(WORKDIR)/$(TOP).json
 
@@ -84,7 +95,7 @@ sim: $(VHDL_SOURCES)
 	$(Q) $(GHDL) -r $(VERBOSE_GHDL) $(GHDL_FLAGS) $(TESTBENCH) --vcd=$(WORKDIR)/$(TESTBENCH).vcd --wave=$(WORKDIR)/$(TESTBENCH).ghw
 
 wave: | sim
-	$(Q) $(GTKWAVE) $(WORKDIR)/$(TESTBENCH).ghw
+	$(Q) $(GTKWAVE) $(WORKDIR)/$(TESTBENCH).ghw &
 
 
 prog: $(WORKDIR)/$(TOP).bin
