@@ -127,15 +127,95 @@ endforeach()
 
 message(STATUS "in items:")
 foreach(arg IN ITEMS val1 val2 val3)
-    message(STATUS "- arg: ${arg}")
+    message(STATUS "  - arg: ${arg}")
 endforeach()
 
 message(STATUS "in lists:")
 set(MY_LIST val1 val2 val3)
 foreach(arg IN LISTS MY_LIST)
-    message(STATUS "- arg: ${arg}")
+    message(STATUS "  - arg: ${arg}")
 endforeach()
 unset(MY_LIST)
+
+
+
+message(STATUS "---FUNCTIONS---")
+# - Functions create new scope, macros don't
+# - Both use named or positional arguments
+#   - ARGC is the
+#   - ARGN is the positional unnamed args
+#   - ARGV is all the positional arguments (access with ARGV0, ARGV1, ...)
+#   - see `cmake --help-command function | less`
+#   - if you want to get specific unnamed arguments, you have to use list commands to retrieve them from ARGN into variables:
+#       - `list(GET ARGN 0 first_argument)`
+# - macro arguments are not real variables (there are specific rules)
+
+function(print message)
+    message(STATUS "called print function with [${ARGV}]")
+    # use named argument
+    message(STATUS "  message: ${message}")
+
+    list(GET ARGN 0 first_unnamed_arg)
+
+    message(STATUS "  first unnamed arg: ${first_unnamed_arg}")
+
+    # loop over positional arguments
+    foreach(arg IN LISTS ARGN)
+        message(STATUS "  arg: ${arg}")
+    endforeach()
+endfunction()
+
+print("test" "33")
+
+print("test 2" "34" "27")
+
+
+# - Built in cmake function for parsing arguments: `cmake_parse_arguments`
+# - This is often used for optional keyword <args..> type arguments (like SOURCES <source list> HEADERS <header list>) etc.
+function(sample)
+    cmake_parse_arguments(local "BOOLOPT" "ONEVAL" "MULTI" ${ARGN})
+
+    if(local_BOOLOPT)
+        message(STATUS "BOOLOPT is enabled")
+    endif()
+    message(STATUS "ONEVAL: ${local_ONEVAL}")
+
+    foreach(arg IN LISTS local_MULTI)
+        message(STATUS "MULTI arg: ${arg}")
+    endforeach()
+endfunction()
+
+sample(ONEVAL "val" MULTI "mval1" "mval2" BOOLOPT)
+
+# Builtin commands (functions and macros include):
+# - project: declare your project
+# - set, unset, list: manipulate variables
+# - if, endif, foreach: control macros
+# - add_library, add_executable: create a library or exectuable target
+# - include_directories, link_libraries: use dependecies
+# - install: install rules for files/targets/directories
+# - execute_process: run external command
+
+function(get_date var_name)
+    execute_process(COMMAND date OUTPUT_VARIABLE "${var_name}" OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set("${var_name}" "${${var_name}}" PARENT_SCOPE)
+endfunction()
+
+get_date(my_date)
+message(STATUS "Date from function get_date: ${my_date}")
+
+execute_process(COMMAND ${CMAKE_COMMAND} -E sleep 1s)
+
+macro(get_date_macro var_name)
+    execute_process(COMMAND date OUTPUT_VARIABLE "${var_name}" OUTPUT_STRIP_TRAILING_WHITESPACE)
+endmacro()
+
+get_date_macro(my_date)
+message(STATUS "Date from macro get_date_macro: ${my_date}")
+unset(my_date)
+
+
+message(STATUS "----TARGETS----")
 
 
 
