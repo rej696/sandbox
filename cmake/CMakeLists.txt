@@ -217,5 +217,44 @@ unset(my_date)
 
 message(STATUS "----TARGETS----")
 
+# add_executable, add_library and add_custom_target all create targets:
+
+# add_executable(test test.c)
+# add_library(testlib STATIC lib.c)
+# add_library(testlib SHARED lib.c)
+# add_library(testlib lib.c) # (BUILD_SHARED_LIBS option determines if library is static (default) or shared)
+
+# link libraries with target:
+# target_link_libraries(testlib z pthread otherlib)
+
+# includes:
+# target_include_directories(testlib PRIVATE ${CMAKE_SOURCE_DIR}/inc)
+
+# external/system includes:
+# target_include_directories(testlib SYSTEM PRIVATE ${MYDEP_INCLUDE_DIRS})
+
+# public includes (i.e. any targets using this library as dependency get access to these directories)
+# target_include_directories(testlib PUBLIC ${CMAKE_SOURCE_DIR}/inc)
+
+# these can be used without specifying "target_" and the target name, but we shouldn't do this
+
+# can create custom targets
+
+# add_custom_target(rpm-package
+#     COMMAND "${CPACK_COMMAND}" -G RPM
+#     COMMENT "Build an rpm package")
+
+add_custom_target(git_check ALL DEPENDS .git_version)
+add_custom_command(
+    OUTPUT .git_version
+    COMMAND sh -c "git log --pretty=format:'' | wc -l | tr -d ' ' > .git_version"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    DEPENDS "${CMAKE_SOURCE_DIR}/.git" VERBATIM)
+
+# install command used to provide files to be packaged with the target
+# install(TARGETS testlib
+#     LIBRARY DESTINATION "lib" COMPONENT Runtime
+#     ARCHIVE DESTINATION "lib" COMPONENT Devel)
+# install(FILES test.h DESTINATION include COMPONENT Devel)
 
 
