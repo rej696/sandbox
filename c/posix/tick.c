@@ -20,7 +20,7 @@ int main(void)
 
     if (res == -1) {
         if (errno != EEXIST) {
-            printf("%d\n", errno);
+            printf("errno: %d, ", errno);
             perror("mkfifo");
             exit(1);
         }

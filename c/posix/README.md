@@ -9,6 +9,7 @@ Code files, notes and examples from reading through [Beejs guide to Interprocess
 
 - `man 7 signal` gives overview of signals
 - `sigaction` should be used instead of `signal` (`man 2 sigaction`)
+- `ipcs` can show shared memory, message queues and semaphores
 
 
 ## Manpages Tips
@@ -20,16 +21,20 @@ Code files, notes and examples from reading through [Beejs guide to Interprocess
 
 ### Man page reading order:
 Overview:
+- man 2 intro
 - man 7 man-pages
 - man 7 unix
 - man 7 posixoptions
+- man 7 attributes
 - man 7 environ
+- man 7 bootup
 - Project: print argv + all environment variables with getenv/setenv/unsetenv
 
 Processes:
 - Overview:
-    - man 7 process
     - man 7 credentials
+    - man 5 proc
+    - man 5 sysfs
 - Syscalls/Functions:
     - man 2 fork
     - man 2 execve
@@ -37,7 +42,7 @@ Processes:
     - man 2 wait
     - man 2 waitpid
     - man 2 exit
-    - man 3 _exit
+    - man 3 exit
 - Project:
     - write a shell with fork, exec, and wait
     - read a command, fork, child should execvp() and parent should waitpid(), print the exit status
@@ -49,6 +54,7 @@ Files, File Descriptors and I/O
     - man 7 path_resolution
     - man 7 inode
     - man 7 fd
+    - man 7 symlink
 - Syscalls/Functions:
     - man 2 open
     - man 2 close
@@ -82,7 +88,6 @@ Signals:
 IPC:
 - [Beej guide to IPC](https://beej.us/guide/bgipc/html/)
 - Overview:
-    - man 7 ipc
     - man 7 pipe
     - man 7 fifo
     - man 7 shm_overview
@@ -127,9 +132,7 @@ Sockets and Networking:
 
 Memory Management:
 - Overview:
-    - man 7 memory
-    - man 7 mmap
-    - man 7 proc
+    - man 7 shm_overview
 - Syscalls/Functions:
     - man 2 brk
     - man 2 mmap
@@ -147,9 +150,7 @@ Threads and Synchronisation:
 - Functions:
     - man 3 pthread_create
     - man 3 pthread_join
-    - man 3 pthread_mutex_lock
-    - man 3 pthread_cond_wait
-    - man 3 pthread_rwlock_*
+    - man 3 pthread_kill
 - Project:
     - split an array accross N threads, each thread computes a partial sum, main thread aggregates results
     - initially use mutex, but then replace with atomic operations

@@ -19,8 +19,11 @@ int main(void)
     int res = mkfifo(FIFO_NAME, 0644); /* set permissions on FIFO */
 
     if (res == -1) {
-        perror("mkfifo");
-        exit(1);
+        if (errno != EEXIST) {
+            printf("errno: %d, ", errno);
+            perror("mkfifo");
+            exit(1);
+        }
     }
 
     printf("waiting for readers...\n");
